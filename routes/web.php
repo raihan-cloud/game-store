@@ -6,6 +6,14 @@ use App\Http\Controllers\Admin\GameController;
 use App\Http\Controllers\GameStoreController; 
 use App\Http\Controllers\PurchaseController;  
 
+// Tambahkan Controller baru untuk Admin
+use App\Http\Controllers\Admin\CategoryController; 
+use App\Http\Controllers\Admin\OrderController; 
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\UserController; 
+use App\Http\Controllers\Admin\SettingController; 
+use App\Http\Controllers\Admin\ProductKeyController; // Contoh untuk Kelola Kunci
+
 /*
 |--------------------------------------------------------------------------
 | ROUTE UNTUK GUEST (NON-OTENTIKASI)
@@ -46,23 +54,42 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Perhatikan grup ini sudah memiliki ->name('admin.')
-// Jadi semua nama route di dalamnya otomatis diawali 'admin.'
 Route::middleware(['auth', 'is.admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // 1. DASHBOARD ADMIN (PERBAIKAN UTAMA 1)
-    // Kita ubah ini agar TIDAK menggunakan GameController.
-    // Langsung tampilkan view dashboard saja.
+    // 1. DASHBOARD
     Route::get('/dashboard', function () {
-        // Pastikan file view Anda ada di resources/views/dashboard.blade.php
-        // Jika file ada di dalam folder admin, ubah jadi view('admin.dashboard')
         return view('admin.dashboard'); 
-    })->name('dashboard'); // Hasil akhir nama: 'admin.dashboard'
+    })->name('dashboard'); 
     
-    // 2. CRUD GAME (PERBAIKAN UTAMA 2)
-    // Kita HAPUS 'except index' agar route 'admin.games.index' tercipta.
-    // Ini akan membuat route: index, create, store, edit, update, destroy, show
+    
+    // KELOMPOK KATALOG
+    // 2. Manage Games (CRUD)
     Route::resource('games', GameController::class); 
+
+    // 3. Manage Categories (CRUD)
+    Route::resource('categories', CategoryController::class); 
+    
+    // 4. Manage Product Keys (Stok Kunci Digital)
+    Route::resource('keys', ProductKeyController::class); 
+
+
+    // KELOMPOK TRANSAKSI & LAPORAN
+    // 5. Manage Orders (CRUD)
+    Route::resource('orders', OrderController::class);
+
+    // 6. Sales Report
+    Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+
+
+    // KELOMPOK SISTEM
+    // 7. Manage Users (Full CRUD: Index, Create, Store, Edit, Update, Destroy)
+    // PERUBAHAN ADA DI SINI: Saya menghapus ->only(...)
+    Route::resource('users', UserController::class);
+    
+    // 8. System Settings
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+
 
 });
 

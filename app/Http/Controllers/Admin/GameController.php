@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Game;
+use App\Models\Category; // Model Category harus diimpor
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Untuk upload/hapus file gambar
+use Illuminate\Support\Facades\Storage;
 
 class GameController extends Controller
 {
@@ -14,17 +15,29 @@ class GameController extends Controller
      */
     public function index()
     {
-        $games = Game::all();
-        // View ini (admin.games.index) adalah halaman tabel yang menampilkan list game
+        // Menggunakan with('category') agar relasi kategori ikut terload
+        $games = Game::with('category')->latest()->get(); 
         return view('admin.games.index', compact('games'));
     }
 
     /**
      * Tampilkan form untuk membuat game baru.
+     * FIX: Mengambil data kategori dan mengirimkannya ke view.
      */
     public function create()
     {
-        return view('admin.games.create');
+        try {
+            // Ambil daftar kategori (name sebagai value, id sebagai key)
+            $categories = Category::pluck('name', 'id');
+            
+            // Kirim variabel $categories ke view
+            return view('admin.games.create', compact('categories'));
+
+        } catch (\Exception $e) {
+            // Jika ada kesalahan database (misalnya: tabel categories belum ada)
+            // Tampilkan pesan error agar Anda tahu harus menjalankan 'php artisan migrate'
+            return back()->with('error', "Error memuat Kategori: Pastikan Anda sudah menjalankan 'php artisan migrate' dan mengisi setidaknya satu data kategori. Detail: " . $e->getMessage());
+        }
     }
 
     /**
@@ -34,25 +47,26 @@ class GameController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id', // FIX: Validasi category_id
+            'title' => 'required|string|max:255|unique:games,title',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Maks 2MB
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         // 2. Proses Upload Gambar (Jika ada)
         $imagePath = null;
         if ($request->hasFile('image')) {
-            // Simpan gambar di storage/app/public/images/games
             $imagePath = $request->file('image')->store('images/games', 'public');
         }
 
         // 3. Simpan Data Game
         Game::create([
+            'category_id' => $request->category_id, // FIX: Simpan category_id
             'title' => $request->title,
             'description' => $request->description,
             'price' => $request->price,
-            'image' => $imagePath, // Simpan path gambar
+            'image' => $imagePath,
         ]);
 
         return redirect()->route('admin.games.index')
@@ -64,7 +78,9 @@ class GameController extends Controller
      */
     public function edit(Game $game)
     {
-        return view('admin.games.edit', compact('game'));
+        // FIX: Ambil dan kirim kategori ke view edit
+        $categories = Category::pluck('name', 'id');
+        return view('admin.games.edit', compact('game', 'categories'));
     }
 
     /**
@@ -74,22 +90,20 @@ class GameController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id', // FIX: Validasi category_id
+            'title' => 'required|string|max:255|unique:games,title,' . $game->id, 
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $data = $request->only('title', 'description', 'price');
+        $data = $request->only('category_id', 'title', 'description', 'price'); // FIX: Ambil category_id
 
         // 2. Proses Perubahan Gambar
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($game->image) {
                 Storage::disk('public')->delete($game->image);
             }
-            
-            // Upload gambar baru
             $data['image'] = $request->file('image')->store('images/games', 'public');
         }
 

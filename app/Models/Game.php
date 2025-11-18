@@ -9,15 +9,23 @@ class Game extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'title',       // Judul game
-        'description', // Deskripsi
-        'price',       // Harga
-        'image',       // Path gambar
+        'category_id', // WAJIB ada
+        'title',
+        'price',
+        'description',
+        // Tambahkan field lain yang ada di tabel games Anda
     ];
+
+    // Relasi One-to-One / Many
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+    
+    // Anda bisa menambahkan relasi lain di sini, seperti productKeys()
+    public function productKeys()
+    {
+        return $this->hasMany(ProductKey::class);
+    }
 }

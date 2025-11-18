@@ -54,42 +54,108 @@
             <span class="brand-text font-weight-light">Game Store</span>
         </a>
 
-        <div class="sidebar">
-    <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-            
-            <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-tachometer-alt"></i>
-                    <p>
-                        Dashboard
-                    </p>
-                </a>
-            </li>
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="/dashboard" class="brand-link">
+        <img src="https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">Game Store</span>
+    </a>
 
-            <li class="nav-item">
-                <a href="{{ route('admin.games.index') }}" 
-                   class="nav-link {{ request()->routeIs('admin.games.*') ? 'active' : '' }}">
-                    <i class="nav-icon fas fa-gamepad"></i> <p>
-                        Manage Games
-                    </p>
-                </a>
-            </li>
-            
-            <li class="nav-item">
-                <a href="#" 
-                   class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"> 
-                    <i class="nav-icon fas fa-users"></i>
-                    <p>
-                        Manage Users
-                    </p>
-                </a>
-            </li>
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                
+                {{-- 1. Dashboard --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.dashboard') }}" 
+                       class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
 
-        </ul>
-    </nav>
+                {{-- 2. Manajemen Katalog (Game & Kategori) --}}
+                <li class="nav-item {{ request()->routeIs('admin.games.*', 'admin.categories.*', 'admin.keys.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.games.*', 'admin.categories.*', 'admin.keys.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-tags"></i>
+                        <p>
+                            Katalog Produk
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.games.index') }}" 
+                               class="nav-link {{ request()->routeIs('admin.games.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Manage Games</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.categories.index') }}" {{-- Anda perlu membuat route ini --}}
+                               class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kelola Kategori</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.keys.index') }}" {{-- Anda perlu membuat route ini --}}
+                               class="nav-link {{ request()->routeIs('admin.keys.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kelola Kunci Produk</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                {{-- 3. Manajemen Transaksi --}}
+                <li class="nav-item {{ request()->routeIs('admin.orders.*', 'admin.reports.*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('admin.orders.*', 'admin.reports.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+                        <p>
+                            Transaksi
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.orders.index') }}" {{-- Anda perlu membuat route ini --}}
+                               class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kelola Pesanan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.reports.sales') }}" {{-- Anda perlu membuat route ini --}}
+                               class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Laporan Penjualan</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- 4. Manajemen Pengguna & Sistem --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.users.index') }}" {{-- Perbarui route ini ke index users --}}
+                       class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"> 
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Manage Users</p>
+                    </a>
+                </li>
+                
+                {{-- 5. Pengaturan --}}
+                <li class="nav-item">
+                    <a href="{{ route('admin.settings.index') }}" {{-- Anda perlu membuat route ini --}}
+                       class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>Pengaturan Sistem</p>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
     </div>
+</aside>
         </aside>
 
     <div class="content-wrapper">

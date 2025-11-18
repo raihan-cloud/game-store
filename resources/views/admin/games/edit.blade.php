@@ -17,6 +17,25 @@
                 @csrf
                 @method('PUT') {{-- PENTING: Mengubah method POST menjadi PUT untuk update data --}}
                 
+                {{-- Pilih Kategori --}}
+                    <div class="form-group">
+                        <label for="category_id">Kategori Game <span class="text-danger">*</span></label>
+                        <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror">
+                            <option value="">-- Pilih Kategori --</option>
+                            {{-- $categories datang dari GameController@create --}}
+                            @foreach($categories as $id => $name)
+                                <option value="{{ $id }}" {{ old('category_id') == $id ? 'selected' : '' }}>
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                   
                 <div class="card-body">
                     {{-- Judul Game --}}
                     <div class="form-group">
