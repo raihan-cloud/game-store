@@ -13,25 +13,27 @@ class PurchaseController extends Controller
 {
     public function checkout(Request $request, Game $game)
     {
-        // 1. Validasi Login (Meskipun sudah ada middleware auth, ini untuk keamanan ganda)
+        // 1. Validasi Login (Opsional jika sudah pakai middleware 'auth' di route)
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Anda harus login untuk membeli game.');
         }
 
-        // 2. Simpan Data Transaksi ke Tabel 'orders'
+        // 2. Simpan Data Transaksi
+        // PENTING: Pastikan 'key' array di bawah ini SAMA PERSIS dengan nama kolom di database
         Order::create([
-            'user_id'      => Auth::id(), // ID User yang sedang login
-            'game_id'      => $game->id,  // ID Game yang dibeli
-            // Jika di tabel orders kolom harganya bernama 'total_price':
-            'total_price'  => $game->price, 
-            // Jika di tabel orders kolom harganya bernama 'grand_total' (sesuaikan dengan database anda):
-            // 'grand_total' => $game->price, 
+            'user_id'      => Auth::id(),
+            'game_id'      => $game->id,
             
-            'status'       => 'Paid',     // Status langsung lunas
-            'invoice_code' => 'INV-' . strtoupper(Str::random(10)), // Kode invoice acak
+            // PERBAIKAN DI SINI:
+            // Saya ubah 'total_price' menjadi 'price'.
+            // Cek database table 'orders' Anda, apakah namanya 'price', 'amount', atau 'total'?
+            'total_price'        => $game->price, 
+            
+            'status'       => 'Paid',
+            'invoice_code' => 'INV-' . strtoupper(Str::random(10)),
         ]);
 
-        // 3. Redirect kembali ke halaman katalog dengan pesan sukses
-        return redirect()->route('store')->with('success', 'Berhasil! Game ' . $game->title . ' sudah dibeli.');
+        // 3. Redirect
+        return redirect()->route('store')->with('success', "Berhasil! Game {$game->title} sudah dibeli.");
     }
 }
